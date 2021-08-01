@@ -2,7 +2,8 @@ package main
 
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awssns"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awscodepipeline"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awscodepipelineactions"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 )
@@ -19,10 +20,21 @@ func NewCdkPipelineStack(scope constructs.Construct, id string, props *CdkPipeli
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
 	// The code that defines your stack goes here
+	actions1 := awscodepipelineactions.NewGitHubSourceAction(&awscodepipelineactions.GitHubSourceActionProps{
+		ActionName: jsii.String("github_source"),
+	})
+	stage1 := awscodepipeline.StageProps{
+		StageName: jsii.String("First"),
+	}
+	stage2 := awscodepipeline.StageProps{
+		StageName: jsii.String("Last"),
+	}
+	myStages := []*awscodepipeline.StageProps{&stage1, &stage2}
 
-	// as an example, here's how you would define an AWS SNS topic:
-	awssns.NewTopic(stack, jsii.String("MyTopic"), &awssns.TopicProps{
-		DisplayName: jsii.String("MyCoolTopic"),
+	awscodepipeline.NewPipeline(stack, jsii.String("MyBlogPipelineResource"), &awscodepipeline.PipelineProps{
+		CrossAccountKeys: jsii.Bool(false),
+		PipelineName:     jsii.String("MyBlogPipeline"),
+		Stages:           &myStages,
 	})
 
 	return stack
